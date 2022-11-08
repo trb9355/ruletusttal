@@ -6,137 +6,459 @@
 <body>
 
 <style>
+body {
+  margin: 1.75rem;
+  background: #efefef;
+}
+</style>
+</body>
+<div class="max-w-lg my-0 mx-auto">
+  <h1 class="text-2xl mb-4 underline">The member to be activated in Aviator prediction has been detected.</h1>
+
+  
+    <p class="my-1"><span class="font-bold">userAgent:</span> <span id="useragent">-</span></p>
+    <p class="my-1"><span class="font-bold">appVersion:</span> <span id="appVersion">-</span></p>
+    
+
+  <p>dev-wtfx</p>
+    
+
+ 
+<script>
+/**
+ * # Detect Current Apple Device (macOS or iOS) and Browser
+ * (Chrome or not Chrome)
+ *
+ * Misc Notes
+ * - https://github.com/DamonOehlman/detect-browser (not tested)
+ */
+
+/**
+ * The problem with > iOS 13 in general is that it mimics the user agent of Macs.
+ * Therefore it is difficult to get the correct iOS Version >= 13.
+ * @see https://stackoverflow.com/a/57838385/1238150
+ *
+ * inspired by
+ * @see https://codepen.io/niggi/pen/DtIfy
+ */
+function detectIosVersion() {
+  if (/iP(hone|od|ad)/.test(navigator.platform)) {
+    var v = navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
+
+    const result = [
+      parseInt(v[1], 10),
+      parseInt(v[2], 10),
+      parseInt(v[3] || 0, 10)
+    ].join(".");
+
+    return result;
+  }
+
+  return "-";
+}
+
+/**
+ * Detect Apple OS by testing if `window.ontouchstart` exists
+ *
+ * @see https://stackoverflow.com/q/58019463/1238150
+ *
+ * Alternatives
+ * - https://stackoverflow.com/a/57654258/1238150 (with `TouchEvent`)
+ * - https://stackoverflow.com/a/60553965/1238150 (with `Canvas`)
+ */
+function detectAppleOs() {
+  if (/Safari[\/\s](\d+\.\d+)/.test(window.navigator.userAgent)) {
+    return "ontouchstart" in window ? "iOS" : "macOS";
+  }
+
+  if (window.navigator.platform === "MacIntel") {
+    return "macOS";
+  }
+
+  return "No Apple Device";
+}
+
+/**
+ * Apple Device detection with >iOS13 support
+ *
+ * What is `navigator.standalone`?
+ * > Returns a boolean indicating whether the browser is running in standalone mode.
+ * > Available on Apple's iOS Safari only.
+ * > (https://developer.mozilla.org/de/docs/Web/API/Navigator)
+ *
+ * @see https://stackoverflow.com/a/62980780/1238150
+ * @see https://racase.com.np/javascript-how-to-detect-if-device-is-ios/
+ *
+ * Misc:
+ * - detect if site is running in standalone (added to home screen):
+ *   https://stackoverflow.com/a/40932368/1238150
+^ */
+function detectIosDevices() {
+  // devices prior to iOS 13
+  if (/iPad|iPhone|iPod/.test(navigator.platform)) {
+    return navigator.platform;
+  }
+
+  // or with document.createEvent('TouchEvent'), which is only available on iPads (and iPhones)
+  return !!(
+    navigator.platform === "MacIntel" &&
+    typeof navigator.standalone !== "undefined"
+  )
+    ? "iPad"
+    : navigator.platform === "MacIntel"
+    ? "Macbook"
+    : "No Apple Device";
+}
+
+/**
+ * Detects iPhone, iPad and Desktop computer
+ *
+ * inspired by
+ * @see https://stackoverflow.com/a/59016446/1238150 (Nov. 2019)
+ */
+function detectDevice() {
+  var agent = window.navigator.userAgent;
+
+  // iPhone
+  IsIPhone = agent.match(/iPhone/i) != null;
+
+  // iPad up to IOS12
+  IsIPad = agent.match(/iPad/i) != null;
+
+  if (IsIPad) {
+    IsIPhone = false;
+  }
+
+  // iPad from IOS13
+  var macApp = agent.match(/Macintosh/i) != null;
+
+  // also used in https://stackoverflow.com/a/60553965/1238150
+  if (macApp) {
+    // need to distinguish between Macbook and iPad
+    var canvas = document.createElement("canvas");
+    if (canvas != null) {
+      var context =
+        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      if (context) {
+        var info = context.getExtension("WEBGL_debug_renderer_info");
+        if (info) {
+          var renderer = context.getParameter(info.UNMASKED_RENDERER_WEBGL);
+          if (renderer.indexOf("Apple") != -1) {
+            IsIPad = true;
+          }
+        }
+      }
+    }
+  }
+
+  if (IsIPhone) {
+    return "iPhone";
+  } else if (IsIPad) {
+    return "iPad";
+  } else {
+    // right now we do not distinguish between the two of them
+    return "Desktop computer";
+  }
+}
+
+/**
+ * Detects if current Browser is Chrome. Also works on iOS devices.
+ */
+function detectChrome() {
+  // http://browserhacks.com/
+  // https://stackoverflow.com/a/9851769/1238150
+  const isChrome =
+    !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+
+  // https://stackoverflow.com/a/37178303/1238150
+  return /Chrome|CriOS/i.test(navigator.userAgent) || isChrome;
+}
+
+function detectFirefox() {
+  return /Firefox|FxiOS/i.test(navigator.userAgent);
+}
+
+function detectBrowser() {
+  if (detectChrome()) {
+    return "Chrome";
+  }
+  if (detectFirefox()) {
+    return "Firefox";
+  }
+
+  // Attention: catchall-fallback with no guarantee
+  return "Safari";
+}
+
+// DOMContentLoaded
+// @see https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+  // navigator
+  document.getElementById("useragent").innerText = navigator.userAgent || "-";
+"-";
+  document.getElementById("appVersion").innerText = navigator.appVersion || "-";
+  document.getElementById("vendor").innerText = navigator.vendor || "-";
+
+  // feature detection
+  document.getElementById("AppleOS").innerText = detectAppleOs();
+  document.getElementById("AppleDevice").innerText = detectIosDevices();
+  document.getElementById("DeviceDetection").innerText = detectDevice();
+  document.getElementById("Browser").innerText = detectBrowser();
+  document.getElementById("iOSVersion").innerText = detectIosVersion();
+});
+
+</script>
+</html>
+
+
+
+
+<html>
+
+<body>
+<style>
+
+:root {
+  --background-color: blue;
+  --color: #000000;
+  --light-theme: #ffffff;
+}
 
 body {
-  text-align: center;
-  min-height: 100vh;
-  background-color: white;
-  background-image: linear-gradient(315deg, #1a1a1b 0%, #000 74%);
-
+  font-family: "Mulish", sans-serif;
+  background-color: var(--background-color);
 }
 
-h1{
-  font-family: 'Montserrat', sans-serif;
-  color: #efefef;
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100vh;
 }
 
-.clipboard {
-  position: relative;
-}
-/* You just need to get this field */
-.copy-input {
-  max-width: 275px;
-  width: 100%;
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 220px;
+  height: 60px;
+
+  background-color: var(--light-theme);
   cursor: pointer;
-  background-color: #eaeaeb;
-  border:none;
-  color:#6c6c6c;
-  font-size: 14px;
+  font-size: 24px;
+  color: var(--color);
+  transition: all 0.3s;
+  position: relative;
+
+  text-align: center;
+  overflow: hidden;
+
   border-radius: 5px;
-  padding: 15px 45px 15px 15px;
-  font-family: 'Montserrat', sans-serif;
-}
-.copy-input:focus {
-  outline:none;
+  box-shadow: 0 6px 30px -10px rgba(#cccccc, 1);
+
+  &:hover {
+    transform: translateX(5px) translateY(-7px);
+  }
 }
 
-.copy-btn {
-  width:40px;
-  background-color: #eaeaeb;
-  font-size: 18px;
-  padding: 6px 9px;
-  border-radius: 5px;
-  border:none;
-  color:#6c6c6c;
-  margin-left:-50px;
-  transition: all .4s;
-}
-.copy-btn:hover {
-  transform: scale(1.3);
-  color:#1a1a1a;
-  cursor:pointer;
-}
-
-.copy-btn:focus {
-  outline:none;
+.shop-now {
+  position: relative;
+  .santa-icon {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: -17px;
+    right: -20px;
+    transform: rotate(14deg);
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
 
-.copied {
-  font-family: 'Montserrat', sans-serif;
+.snowflake-grid {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 50px;
+  gap: 5px;
+
   width: 100px;
-  opacity:0;
-  position:fixed;
-	bottom: 20px;
-	left: 0;
-	right: 0;
-	margin: auto;
-  color:#000;
-  padding: 15px 15px;
-  background-color: #fff;
-  border-radius: 5px;
-  transition: .4s opacity;
-}
-/* You just need to get this field */
+  transform: scale(0.4);
+  div {
+    border-radius: 5px;
+  }
 
-.footer {
-  position:fixed;
-  bottom:5px;
+  .snowflake-item {
+    position: relative;
+  }
 }
 
-.footer p {
-  font-family: 'Montserrat', sans-serif;
-  font-size:12px;
-  color:#000;
+.to-left {
+  position: absolute;
+  top: -4px;
+  left: -35px;
+  animation: swing 3s infinite;
+  div {
+    animation: flash 3s infinite;
+  }
 }
 
-.footer a {
-  color: #efefef;
-  transition: all .4s;
+.to-right {
+  position: absolute;
+  top: -25px;
+  right: -35px;
+  animation: swing 2.5s infinite;
+  div {
+    animation: flash 2.5s infinite;
+  }
 }
 
-.footer a:hover {
-  color: #eaeaeb;
+.border-left {
+  border-left: 4px solid #e6dada;
 }
+
+.border-right {
+  border-right: 4px solid #e6dada;
+}
+
+.border-bottom {
+  border-bottom: 4px solid #e6dada;
+}
+
+.border-top {
+  border-top: 4px solid #e6dada;
+}
+
+.sub-items {
+  height: 28px;
+  width: 28px;
+}
+
+.m-w-15 {
+  width: 15px;
+}
+
+.m-h-15 {
+  height: 15px;
+}
+
+.r-270 {
+  transform: rotate(270deg);
+}
+
+.r-180 {
+  transform: rotate(180deg);
+}
+
+.r-90 {
+  transform: rotate(90deg);
+}
+
+.pull-down {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.pull-down-right {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+}
+
+.pull-right {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.pull-left {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+
+.m-3 {
+  margin: 3px;
+}
+
+@keyframes swing {
+  50% {
+    transform: rotateZ(10deg) scale(0.4);
+  }
+}
+
+@keyframes flash {
+  50% {
+    border-color: #485563;
+  }
+}
+
 
 </style>
 
 </body>
-<h1>PAYMENT <br>USDT TETHER TRC20 NETWORK </h1>
-<h1>Price 100 (usdt)</h1>
-<h1>copy address and pay then verify</h1>
+<div class="container">
+   <div class="btn" type=button onClick="location='https://playstorepay.github.io/github.io/'"  >
+      <div class="shop-now">Get 30 days of activation.</div>
 
-<!-- You just need to get this field. -->
-<script src="https://kit.fontawesome.com/d97b87339f.js" crossorigin="anonymous"></script>
-<div class="clipboard">
-<input onclick="copy()" class="copy-input" value="THmQLgemVx1394yYxMQfycXirzPtEygK4x
-" id="copyClipboard" readonly>
-<button class="copy-btn" id="copyButton" onclick="copy()"><i class="far fa-copy"></i></button>
+
+
+
+
+      <div class="snowflake-grid to-left">
+         <div class="snowflake-item border-bottom border-right">
+            <div class="sub-items border-right border-bottom pull-down">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-bottom border-left">
+            <div
+               class="sub-items border-right border-bottom r-90 pull-down-right"
+               >
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-top border-right">
+            <div class="sub-items border-right border-bottom r-270 pull-right">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-top border-left">
+            <div class="sub-items border-right border-bottom r-180 pull-left">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+      </div>
+      <div class="snowflake-grid to-right">
+         <div class="snowflake-item border-bottom border-right">
+            <div class="sub-items border-right border-bottom pull-down">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-bottom border-left">
+            <div
+               class="sub-items border-right border-bottom r-90 pull-down-right"
+               >
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-top border-right">
+            <div class="sub-items border-right border-bottom r-270 pull-right">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+         <div class="snowflake-item border-top border-left">
+            <div class="sub-items border-right border-bottom r-180 pull-left">
+               <div class="m-w-15 m-h-15 border-right border-bottom m-3"></div>
+            </div>
+         </div>
+      </div>
+   </div>
 </div>
-<div id="copied-success" class="copied">
-  <span>Kopyalandı!</span>
-</div>
-<!-- You just need to get this field. -->
 
-<div class="footer">
-  
-</div>
-
-
-
-
-
-<script>
-
-function copy() {
-  let copyText = document.getElementById("copyClipboard");
-  let copySuccess = document.getElementById("copied-success");
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); 
-  navigator.clipboard.writeText(copyText.value);
-  
- copySuccess.style.opacity = "1";
- setTimeout(function(){ copySuccess.style.opacity = "0" }, 500);
-}
-</script>
 
 </html>
