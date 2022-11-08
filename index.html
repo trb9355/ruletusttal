@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<title>?secure?</title>
+
+
+<body>
+
+<style>
+
+body {
+  text-align: center;
+  min-height: 100vh;
+  background-color: white;
+  background-image: linear-gradient(315deg, #1a1a1b 0%, #000 74%);
+
+}
+
+h1{
+  font-family: 'Montserrat', sans-serif;
+  color: #efefef;
+}
+
+.clipboard {
+  position: relative;
+}
+/* You just need to get this field */
+.copy-input {
+  max-width: 275px;
+  width: 100%;
+  cursor: pointer;
+  background-color: #eaeaeb;
+  border:none;
+  color:#6c6c6c;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 15px 45px 15px 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+.copy-input:focus {
+  outline:none;
+}
+
+.copy-btn {
+  width:40px;
+  background-color: #eaeaeb;
+  font-size: 18px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  border:none;
+  color:#6c6c6c;
+  margin-left:-50px;
+  transition: all .4s;
+}
+.copy-btn:hover {
+  transform: scale(1.3);
+  color:#1a1a1a;
+  cursor:pointer;
+}
+
+.copy-btn:focus {
+  outline:none;
+}
+
+.copied {
+  font-family: 'Montserrat', sans-serif;
+  width: 100px;
+  opacity:0;
+  position:fixed;
+	bottom: 20px;
+	left: 0;
+	right: 0;
+	margin: auto;
+  color:#000;
+  padding: 15px 15px;
+  background-color: #fff;
+  border-radius: 5px;
+  transition: .4s opacity;
+}
+/* You just need to get this field */
+
+.footer {
+  position:fixed;
+  bottom:5px;
+}
+
+.footer p {
+  font-family: 'Montserrat', sans-serif;
+  font-size:12px;
+  color:#000;
+}
+
+.footer a {
+  color: #efefef;
+  transition: all .4s;
+}
+
+.footer a:hover {
+  color: #eaeaeb;
+}
+
+</style>
+
+</body>
+<h1>PAYMENT <br>USDT TETHER TRC20 NETWORK </h1>
+<h1>Price 100 (usdt)</h1>
+<h1>copy address and pay then verify</h1>
+
+<!-- You just need to get this field. -->
+<script src="https://kit.fontawesome.com/d97b87339f.js" crossorigin="anonymous"></script>
+<div class="clipboard">
+<input onclick="copy()" class="copy-input" value="THmQLgemVx1394yYxMQfycXirzPtEygK4x
+" id="copyClipboard" readonly>
+<button class="copy-btn" id="copyButton" onclick="copy()"><i class="far fa-copy"></i></button>
+</div>
+<div id="copied-success" class="copied">
+  <span>Kopyalandı!</span>
+</div>
+<!-- You just need to get this field. -->
+
+<div class="footer">
+  
+</div>
+
+
+
+
+
+<script>
+
+function copy() {
+  let copyText = document.getElementById("copyClipboard");
+  let copySuccess = document.getElementById("copied-success");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); 
+  navigator.clipboard.writeText(copyText.value);
+  
+ copySuccess.style.opacity = "1";
+ setTimeout(function(){ copySuccess.style.opacity = "0" }, 500);
+}
+</script>
+
+</html>
